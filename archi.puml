@@ -1,0 +1,20 @@
+@startuml
+
+participant Client as "Client" #aliceblue
+participant Backend as "Backend" #lightyellow
+participant DBServer as "DB Server" #lightgreen
+
+Client --> Backend : Login (email, password)
+Backend --> DBServer : Email
+Backend <-- DBServer : Enregistrement utilisateur
+note over Backend: Compare (password)
+
+alt Mot de passe correct
+    Backend -> Backend : Génère un token JWT
+    Client <-- Backend : Token (email, rôle)
+    note over Client: Je souhaite supprimer mon compte. Voici le token d'authentification, qui contient mon identité et mes droits.
+else Mot de passe incorrect
+    Client <-- Backend : Erreur 401 Unauthorized
+end
+
+@enduml
