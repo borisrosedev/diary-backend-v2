@@ -52,8 +52,36 @@ const userController = {
             console.trace( err )
             return res.status(500).json({ err })
         }
-    }
+    },
 
+    async getOneByEmail(req, res) {
+        
+        const { decodedToken } = req
+
+        if(!decodedToken){
+            return res.status(401).json({ message: "no decoded token get out"})  
+        }
+
+        const { email } = decodedToken
+
+        try {
+
+            const user = await User.findOne({
+                where: {
+                    email: email
+                }
+            })
+
+            if(!user) {
+                return res.status(404).json({ message: "no user found with email " + email})   
+            }
+
+            return res.status(200).json({ user })
+
+        } catch(err) {
+            return res.status(500).json({ err })
+        }
+    }
 
 }
 
