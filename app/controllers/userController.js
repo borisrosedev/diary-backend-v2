@@ -8,6 +8,16 @@ dotenv.config({
 })
 
 const userController = {
+
+    async index(req, res) {
+        try {
+            const users = await User.findAll()
+            return res.status(200).json({ users })
+        } catch (err) {
+            return res.status(500).json({ err })
+        }
+    },
+
     async login(req, res) {
         const { email, password } = req.body
 
@@ -81,7 +91,33 @@ const userController = {
         } catch(err) {
             return res.status(500).json({ err })
         }
+    },
+
+    async deleteOneById(req, res) {
+
+        const { email, role } = req.decodedToken
+        const { id } = req.params 
+
+        try {
+            const user = await User.findByPk(Number(id))
+
+            if(!user){
+                return res.status(404).json({ message: `no user found with id : ${id}`})
+            }
+
+            if(!(email == user.email || role == 'admin')) {
+                return res.status(400).json({ message : 'bad request'})
+            }
+
+            await user.destroy()
+            return res.status(200).json({ message : `User with id ${id} has been destroyed`})
+
+        } catch(err) {
+            return res.status(500).json({ err })
+        }
+
     }
+
 
 }
 

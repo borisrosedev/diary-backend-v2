@@ -33,7 +33,7 @@ User.init({
 },{
 
     sequelize:sequelizeClient,
-    tableName: 'Users', 
+    tableName: 'Users'
 
 })
 
