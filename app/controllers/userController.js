@@ -1,4 +1,4 @@
-const User = require('../database/models')
+const { User, Diary } = require('../database/models')
 const { compareSync } = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const dotenv = require('dotenv')
@@ -11,6 +11,12 @@ dotenv.config({
 const userController = {
 
     async index(req, res) {
+
+        const { email, role } = req.decodedToken
+
+        if(!(role == "admin" && email == process.env.ADMIN_EMAIL)){
+            return res.status(403).json({ message: "restricted access"})
+        }
 
         try {
             const users = await User.findAll()
@@ -59,13 +65,12 @@ const userController = {
                 transaction: t
             })
 
-            await user.addDiary(
+            await user.createDiary(
                 {
-                  title: 'First Diary',
+                  title: 'FirstDiary',
                   description: 'Here is the description of your diary',
                   number: 1
                 },
-              
                 { transaction: t },
             );
             await t.commit();
@@ -94,7 +99,8 @@ const userController = {
             const user = await User.findOne({
                 where: {
                     email: email
-                }
+                },
+                include: [Diary]
             })
 
             if(!user) {
@@ -132,8 +138,30 @@ const userController = {
             return res.status(500).json({ err })
         }
 
-    }
+    },
 
+    async updateOneByEmail(req, res) {
+
+        const { email, role } = req.decodedToken
+        const { id } = req.params
+        try {
+
+            const user = await User.findByPk(Number(id))
+            if(!(email == user.email || role == 'admin')) {
+                return res.status(400).json({ message : 'bad request'})
+            }
+
+            const updatedUser = await user.update({
+                ...req.body
+            })
+
+            res.status(200).json({ updatedUser })
+
+
+        } catch (err){
+            return res.status(500).json({ err })
+        }
+    }
 
 }
 

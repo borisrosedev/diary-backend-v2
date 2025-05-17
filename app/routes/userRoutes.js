@@ -4,9 +4,10 @@ const { checkIfTokenExists, decodeToken } = require('../middlewares/authMiddlewa
 const { email, validationResult, password } = require('../middlewares/validatorMiddlewares')
 const route = Router()
 
-route.get('/', userController.index)
+route.get('/', [ checkIfTokenExists, decodeToken ] , userController.index)
 route.post('/',[password, validationResult], userController.store)
 route.post('/login', email, validationResult, userController.login)
 route.get('/me', [ checkIfTokenExists, decodeToken ]  , userController.getOneByEmail)
 route.delete('/:id', [checkIfTokenExists, decodeToken], userController.deleteOneById)
+route.patch('/:id',  [ checkIfTokenExists, decodeToken ] , userController.updateOneByEmail)
 module.exports = route

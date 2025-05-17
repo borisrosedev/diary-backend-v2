@@ -4,6 +4,9 @@ const path = require('path')
 const cors = require('cors')
 const { dbConnectionTest } = require('./app/database/dbConnect')
 const userRoutes = require('./app/routes/userRoutes')
+const diaryRoutes = require('./app/routes/diaryRoutes')
+const chapterRoutes = require('./app/routes/chapterRoutes')
+
 dotenv.config({
     path: path.join(__dirname, '.env')
 })
@@ -18,6 +21,8 @@ app.use(express.json())
 app.use(cors())
 
 app.use('/api/v1/user', userRoutes)
+app.use('/api/v1/diary', diaryRoutes)
+app.use('/api/v1/chapter', chapterRoutes)
 
 //http://localhost:3000/api/v1/user
 

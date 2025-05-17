@@ -1,4 +1,4 @@
-const { Model, DataTypes, ENUM } = require('sequelize')
+const { Model, DataTypes } = require('sequelize')
 const { hashSync } = require('bcrypt')
 const { sequelizeClient } = require('../dbConnect')
 const dotenv = require('dotenv')
@@ -74,6 +74,7 @@ User.init({
 
 })
 
+console.log("User is a SQUELIZE CLIENT MODEL ?", User == sequelizeClient.models.User)
 
 module.exports = User
 

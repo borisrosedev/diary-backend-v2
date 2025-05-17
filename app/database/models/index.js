@@ -26,21 +26,21 @@ Chapter.belongsTo(Diary, {
 
 
 
-async function syncWithDb() {
-    await User.sync({
-        force: true
-    })
+// async function syncWithDb() {
+//     await User.sync({
+//         force: true
+//     })
 
-    await Diary.sync({
-        force: true
-    })
+//     await Diary.sync({
+//         force: true
+//     })
 
-    await Chapter.sync({
-        force: true
-    })
-}
+//     await Chapter.sync({
+//         force: true
+//     })
+// }
 
-syncWithDb()
+// syncWithDb()
 
 
 module.exports = { User, Diary, Chapter }

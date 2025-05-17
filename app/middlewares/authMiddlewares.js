@@ -28,15 +28,18 @@ module.exports = {
 
     decodeToken(req, res, next) {
         const { token } = req
-        const decodedToken = jwt.verify(token,process.env.TOKEN_PRIVATE_KEY)
-     
-        if(!decodedToken) {
+
+        try {
+            const decodedToken = jwt.verify(token,process.env.TOKEN_PRIVATE_KEY)
+            req.decodedToken = decodedToken
+            next()
+        } catch (err){
             return res.status(401).json({ message: "no decoded"}) 
         }
+       
+ 
 
-        req.decodedToken = decodedToken
-
-        next()
+  
 
     }
 
