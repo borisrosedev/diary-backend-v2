@@ -1,8 +1,9 @@
-const User = require('../database/models/User')
+const User = require('../database/models')
 const { compareSync } = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const dotenv = require('dotenv')
 const path = require('path')
+const { sequelizeClient } = require('../database/dbConnect')
 dotenv.config({
     path: path.join(__dirname, '../../.env')
 })
@@ -10,6 +11,7 @@ dotenv.config({
 const userController = {
 
     async index(req, res) {
+
         try {
             const users = await User.findAll()
             return res.status(200).json({ users })
@@ -21,28 +23,25 @@ const userController = {
     async login(req, res) {
         const { email, password } = req.body
 
-      
-
         try {
             const user = await User.findOne({
                 where: { email }
             })
 
-
-
             const isPasswordValid = compareSync(password, user.password)
 
-            if(isPasswordValid) {
-                    const token = jwt.sign({ email, role: user.role }, process.env.TOKEN_PRIVATE_KEY, {
-                        expiresIn: "1h"
-                    })
+            if(!isPasswordValid){
+                return res.status(400).json({ message : "Bad Request" })
+            }
+           
+            const token = jwt.sign({ email, role: user.role }, process.env.TOKEN_PRIVATE_KEY, {
+                expiresIn: "1h"
+            })
 
-                    console.log("😎", token)
+            console.log("😎", token)
 
-                    return res.status(200).json({ token })
-            }     
-            return res.status(400).json({ message : "Bad Request" })
-          
+            return res.status(200).json({ token })
+                 
         } catch (err) {
             return res.status(500).json({ err })
         }
@@ -52,13 +51,29 @@ const userController = {
 
         const { firstName, lastName, email, password } = req.body
 
+        const t = await sequelizeClient.transaction();
+
         try {
             const user = await User.create({ firstName, lastName, email, password
+            }, {
+                transaction: t
             })
 
+            await user.addDiary(
+                {
+                  title: 'First Diary',
+                  description: 'Here is the description of your diary',
+                  number: 1
+                },
+              
+                { transaction: t },
+            );
+            await t.commit();
             return res.status(201).json({ user })
 
+
         } catch( err ){
+            await t.rollback();
             console.trace( err )
             return res.status(500).json({ err })
         }
@@ -85,10 +100,11 @@ const userController = {
             if(!user) {
                 return res.status(404).json({ message: "no user found with email " + email})   
             }
-
+  
+        
             return res.status(200).json({ user })
-
         } catch(err) {
+        
             return res.status(500).json({ err })
         }
     },

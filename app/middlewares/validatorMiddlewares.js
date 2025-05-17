@@ -9,10 +9,10 @@ const validatorMiddlewares = {
         minLowercase: 1,
         minNumbers: 1
     }),
-    email: body('email').notEmpty().isEmail(),
+    email: body('email').notEmpty(),
     validationResult: (req, res, next) => {
         const result = validationResult(req)
-        console.log(req.body)
+       
         if(!result.isEmpty()){
             return res.status(400).json({ result: result.array()})
         }
